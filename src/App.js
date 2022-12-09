@@ -1,6 +1,7 @@
 import { withAuthenticator, Button, Heading } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
-
+import TodoList from './components/TodoList';
+import React from 'react';
 import './App.css';
 
 function App({ signOut, user }) {
@@ -8,7 +9,8 @@ function App({ signOut, user }) {
     <div style={styles.container}>
       <Heading level={1}>Hello {user.username}</Heading>
       <Button onClick={signOut}>Sign out</Button>
-      <h2>Amplify Todos</h2>
+      {/* <h2>Amplify Todos</h2> */}
+      <TodoList />
     </div>
   );
 }

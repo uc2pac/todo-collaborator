@@ -1,0 +1,20 @@
+{
+    "todos": [
+        {
+            "id": 1,
+            "createdBy": "jinhoo",
+            "sharedWih": [],
+            "text": "task 1",
+            "status": "active",
+            "createdAt": "12-09-2022"
+        }, 
+        {
+            "id": 2,
+            "createdBy": "jinhoo",
+            "sharedWih": [],
+            "text": "task 2",
+            "status": "done",
+            "createdAt": "12-09-2022"
+        }
+    ]
+}
