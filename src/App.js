@@ -1,17 +1,21 @@
-import { withAuthenticator, Button, Heading } from '@aws-amplify/ui-react';
-import '@aws-amplify/ui-react/styles.css';
-import TodoList from './components/TodoList';
 import React from 'react';
-import './App.css';
+import { withAuthenticator, Button, Heading } from '@aws-amplify/ui-react';
+import Container from '@mui/material/Container';
+
+import '@aws-amplify/ui-react/styles.css';
+
+import Header from './components/Header';
+import TodoList from './components/TodoList';
 
 function App({ signOut, user }) {
   return (
-    <div style={styles.container}>
-      <Heading level={1}>Hello {user.username}</Heading>
-      <Button onClick={signOut}>Sign out</Button>
-      {/* <h2>Amplify Todos</h2> */}
-      <TodoList />
-    </div>
+    <>
+      <Header signOut={signOut} />
+      <Container>
+        <Heading level={1}>Hello {user.username}</Heading>
+        <TodoList user={user} />
+      </Container>
+    </>
   );
 }
 

@@ -19,6 +19,7 @@ export const createTodo = /* GraphQL */ `
     }
   }
 `;
+
 export const updateTodo = /* GraphQL */ `
   mutation UpdateTodo(
     $input: UpdateTodoInput!
@@ -37,6 +38,7 @@ export const updateTodo = /* GraphQL */ `
     }
   }
 `;
+
 export const deleteTodo = /* GraphQL */ `
   mutation DeleteTodo(
     $input: DeleteTodoInput!

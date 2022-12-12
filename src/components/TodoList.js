@@ -2,60 +2,113 @@ import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 
+import AddTodo from "./AddTodo";
 import TodoItem from "./TodoItem";
+import ShareDialog from "./ShareDialog";
 // import data from "../todolist.json";
 import { API, graphqlOperation } from "aws-amplify";
 import { listTodos } from '../graphql/queries';
-import { createTodo } from '../graphql/mutations';
+import { createTodo, deleteTodo, updateTodo } from '../graphql/mutations';
 
 
-// here we neeed to get all of the information from the backend and then pass it down 
-// fields : text, status
+const TodoList = ({ user }) => {
+  const [todos, setTodos] = useState([]);
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
 
-// const initialState = {createdBy: '', text: ''}
+  const fetchTodos = async () => {
+      try {
+          const todoData = await API.graphql(graphqlOperation(listTodos))
+          const todos = todoData.data.listTodos.items
+          setTodos(todos);
+      } catch (err) {
+        console.log('error', err)
+      }
+  };
 
-const TodoList = () => {
+  useEffect(() => {
+      fetchTodos();
+  }, []);
 
-    // const [todos, setTodos] = useState([]);
-    // const [formState, setFormState] = useState(initialState);
+  const onTodoAdd = async (text) => {
+    const newTodo = {
+      createdBy: user.username,
+      sharedWith: [],
+      text,
+      status: "active",
+    }
 
-    // const fetchTodos = async () => {
-    //     try {
-    //         const todoData = await API.graphql(graphqlOperation(listTodos))
-    //         const todos = todoData.data.listTodos.items
-    //         setTodos(todos);
-    //     } catch (err) {console.log('error', err)}
-    // };
+    try {
+      await API.graphql(graphqlOperation(createTodo, {input: newTodo}));
+      setTodos((todos) => [...todos, newTodo]);
+    } catch (err) {
+      console.log("error creating todo", err);
+    }
+  }
 
-    // useEffect(() => {
-    //     fetchTodos();
-    // }, []);
+  const onDelete = async (id) => {
+    try {
+      await API.graphql(graphqlOperation(deleteTodo, {input: { id }}));
+      setTodos((todos) => todos.filter(todo => todo.id !== id));
+    } catch (error) {
+      console.error("error deleting todo", error);
+    }
+  }
 
-    // const setInput = (key, value) => {
-    //     setFormState({...formState, [key]: value});
+  const onShare = async (id) => {
+    setIsShareDialogOpen(true);
+    // try {
+    //   const input = {
+    //     id,
+    //     status: 'done'
+    //   };
+
+    //   await API.graphql(graphqlOperation(updateTodo, { input }));
+    // } catch (error) {
+    //   console.error("error sharing todo", error);
     // }
+  }
 
-    // const addTodos = async () => {
-    //     try {
-    //         if (!formState.text) return;
-    //         const todo = {...formState};
-    //         setTodos([...todos, todo]);
-    //         setFormState(initialState);
-    //         await API.graphql(graphqlOperation(createTodo, {input: todo}));
-    //     } catch (err) {console.log("error creating", err)}
-    // }
+  const onDone = async (id) => {
+    try {
+      const input = {
+        id,
+        status: 'done'
+      };
+  
+      await API.graphql(graphqlOperation(updateTodo, { input }));
+    
+      setTodos((todos) => todos.map(todo => ({
+        ...todo,
+        status: todo.id === id ? 'done' : todo.status
+      })));
+    } catch (error) {
+      console.error("error updating todo", error);
+    }
+  }
 
-    return (
-       <Box margin={"5%"}>
-           {/* <input onChange={(e) => setInput('text', e.target.value)} value={formState.description} placeholder="text"/>
-           <button onClick={() => addTodos()}>Create todo</button> */}
-            <List >
-                {todos.map((todoItem) => {
-                    return <TodoItem text={todoItem.text} status={todoItem.status} id={todoItem.id}/>
-                })}
-            </List>
-       </Box>
-    )
+  return (
+    <Box>
+      <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
+        <AddTodo onAdd={onTodoAdd} />
+      
+        {todos.map((todoItem) => {
+          return (
+            <TodoItem
+              text={todoItem.text}
+              status={todoItem.status}
+              id={todoItem.id}
+              key={todoItem.id}
+              onDelete={onDelete}
+              onShare={onShare}
+              onDone={onDone}
+            />
+          )
+        })}
+      </List>
+
+      <ShareDialog isOpen={isShareDialogOpen} onClose={setIsShareDialogOpen} />
+    </Box>
+  )
 };
 
 export default TodoList;
